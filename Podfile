@@ -8,4 +8,5 @@ target 'BookStore' do
   # Pods for BookStore
 
 pod 'Alamofire', '~> 4.4'
+pod 'ObjectMapper', '~> 2.2'
 end

@@ -10,117 +10,109 @@ import Foundation
 import UIKit
 import Alamofire
 
-class loginView : UIViewController {
+class loginView : UIViewController  , UITextFieldDelegate{
     
-    // list ob books as an array
-    var booksListAsAnArray : NSArray!
     
+    
+    // outlets to objects from storyboard
     @IBOutlet weak var userNameTxt: UITextField!
     @IBOutlet weak var passWordTxt: UITextField!
+    @IBOutlet weak var loaderIndicator: UIActivityIndicatorView!
     
-    
-    
+    // A flag to determine if the user permitted to login or not
+    var autherizedFlag : Bool = false    
+    var credentialJsonModel : CheckCredentialsModel!
+
     override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
         
-        // Request data from server
-        fetchData()
+        // textFields delegate
+        userNameTxt.delegate = self
+        passWordTxt.delegate = self
+        
     }
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
     
     
     @IBAction func loginTask(_ sender: Any) {
         
-        if Reachability.isConnectedToNetwork() == false {
-            
-            let alert = UIAlertView(title: "Error", message: "Please make sure of your internet connection", delegate: nil, cancelButtonTitle: "OK")
-            alert.alertViewStyle = .default
-            alert.show()
-            return
-            
-        }
+        loaderIndicator.startAnimating()
         
-        // validate the user first
-        if (userNameTxt.text == "usertest" && passWordTxt.text == "secret") {
-            
-            // Request data from server
-            fetchData()
-            
-            
-            // navigate to the book list page
-            let listOfBooksView:listOfBooksView = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "listOfBooksView") as! listOfBooksView
-            listOfBooksView.booksList = self.booksListAsAnArray
-            self.present(listOfBooksView, animated: false, completion: nil)
-            
-            
-        }
-        else {
-            
-            
-            let alert = UIAlertView(title: "Error", message: "Please make sure of username and password", delegate: nil, cancelButtonTitle: "OK")
-            alert.alertViewStyle = .default
-            alert.show()
-            
-            
-        }
+        let viewModel = CheckCredentials_VM_Model()
         
+        let user = userNameTxt.text//"usertest"
+        let password = passWordTxt.text//"secret"
         
-        
-        
-        
-        
-    }
-    
-    
-    
-    
-    
-    
-    // fetching the data from server
-    func fetchData(){
-        
-        if Reachability.isConnectedToNetwork() == false {
+        viewModel.getRequestStatus(flagSender: "LoginFunction", userName: user!, passWord: password!, completionHandler: {
             
-            let alert = UIAlertView(title: "Error", message: "Please make sure of your internet connection", delegate: nil, cancelButtonTitle: "OK")
-            alert.alertViewStyle = .default
-            alert.show()
-            return
+            (resultResponseModel) in
             
-        }
-            
-        else {
+            self.credentialJsonModel = resultResponseModel
             
             
-            
-            Alamofire.request("http://assignment.gae.golgek.mobi/api/v1/items").responseJSON { response in
-                if let JSON = response.result.value {
-                    
-                    self.booksListAsAnArray = JSON as! NSArray
-                    
-                    
-                    
-                    
-                    
-                }
+            guard self.credentialJsonModel.status == 200 else {
+                
+                let alert = UIAlertView(title: "Authentication", message: "Your credentials is not right , please try afain", delegate: nil, cancelButtonTitle: "OK")
+                alert.alertViewStyle = .default
+                alert.show()
+                self.loaderIndicator.stopAnimating()
+                
+                return
             }
             
             
+            // navigate to list screen
+            
+            print("We are navigating you to the next screen...")
+            self.loaderIndicator.stopAnimating()
+            let listOfBooksView:listOfBooksView = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "listOfBooksView") as! listOfBooksView
+            
+            self.present(listOfBooksView, animated: false, completion: nil)
             
             
+            
+            
+            
+        })
+       
+        
+    }
+
+    
+
+    
+    // delegation function for text fields
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {   //delegate method
+        
+        // get the tag for each text field
+        let tag = textField.tag
+        
+        switch tag {
+        case 0:
+            passWordTxt.becomeFirstResponder()
+            //self.view.endEditing(true)
+            return true
+            
+        case 1:
+            
+            self.view.endEditing(true)
+            self.loginTask(self)
+            return true
+            
+            
+            
+            
+        default:
+            return true
         }
+        
+        
     }
     
-    
-    
-    
-    
-    
-    
+
     
 }
+
+
+
+
 
