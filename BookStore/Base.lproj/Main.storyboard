@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -24,32 +24,32 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="user name" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Ipi-q4-QCu">
-                                <rect key="frame" x="60" y="193" width="200" height="30"/>
+                                <rect key="frame" x="60" y="291" width="200" height="30"/>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" keyboardType="emailAddress" returnKeyType="next" enablesReturnKeyAutomatically="YES"/>
                             </textField>
                             <textField opaque="NO" clipsSubviews="YES" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="password" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="296-6V-DLc">
-                                <rect key="frame" x="60" y="231" width="200" height="30"/>
+                                <rect key="frame" x="60" y="329" width="200" height="30"/>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" returnKeyType="done" enablesReturnKeyAutomatically="YES" secureTextEntry="YES"/>
                             </textField>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="bookImage.png" translatesAutoresizingMaskIntoConstraints="NO" id="bkX-RC-kVf">
-                                <rect key="frame" x="60" y="28" width="200" height="157"/>
+                                <rect key="frame" x="60" y="126" width="200" height="157"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="157" id="enc-V6-AmL"/>
                                 </constraints>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qEY-Ch-Jpf">
-                                <rect key="frame" x="60" y="269" width="200" height="30"/>
+                                <rect key="frame" x="60" y="367" width="200" height="30"/>
                                 <state key="normal" title="Log in"/>
                                 <connections>
                                     <action selector="loginTask:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0Te-oq-cTJ"/>
                                 </connections>
                             </button>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="bIl-Vi-XLq">
-                                <rect key="frame" x="142" y="307" width="37" height="37"/>
+                                <rect key="frame" x="142" y="405" width="37" height="37"/>
                                 <color key="color" red="0.042582220179999998" green="0.79513683079999997" blue="0.91373133660000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </activityIndicatorView>
                         </subviews>
@@ -63,16 +63,17 @@
                             <constraint firstAttribute="trailingMargin" secondItem="Ipi-q4-QCu" secondAttribute="trailing" constant="44" id="UKj-VB-b3Q"/>
                             <constraint firstItem="qEY-Ch-Jpf" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="44" id="gEP-71-vOH"/>
                             <constraint firstAttribute="trailingMargin" secondItem="296-6V-DLc" secondAttribute="trailing" constant="44" id="gzU-Sg-nbW"/>
-                            <constraint firstItem="bkX-RC-kVf" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" id="iGS-eG-n5F"/>
                             <constraint firstItem="bIl-Vi-XLq" firstAttribute="top" secondItem="qEY-Ch-Jpf" secondAttribute="bottom" constant="8" id="ifT-rA-eOq"/>
                             <constraint firstItem="bIl-Vi-XLq" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="jvn-5A-OBI"/>
                             <constraint firstItem="296-6V-DLc" firstAttribute="top" secondItem="Ipi-q4-QCu" secondAttribute="bottom" constant="8" id="oNf-NJ-UcS"/>
+                            <constraint firstItem="bkX-RC-kVf" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="106" id="p5f-PO-a8E"/>
                             <constraint firstItem="296-6V-DLc" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="44" id="pId-IV-ri2"/>
                             <constraint firstItem="bkX-RC-kVf" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="44" id="v0N-Ij-YGf"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="loaderIndicator" destination="bIl-Vi-XLq" id="gSb-cw-wEE"/>
+                        <outlet property="loginButton" destination="qEY-Ch-Jpf" id="cwz-zV-vpi"/>
                         <outlet property="passWordTxt" destination="296-6V-DLc" id="Hn0-E2-CgF"/>
                         <outlet property="userNameTxt" destination="Ipi-q4-QCu" id="E5A-sb-zqp"/>
                     </connections>

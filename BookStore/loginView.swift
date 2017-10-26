@@ -13,16 +13,21 @@ import Alamofire
 class loginView : UIViewController  , UITextFieldDelegate{
     
     
+    // MARK : Outlets and variables
     
     // outlets to objects from storyboard
     @IBOutlet weak var userNameTxt: UITextField!
     @IBOutlet weak var passWordTxt: UITextField!
+    @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var loaderIndicator: UIActivityIndicatorView!
     
-    // A flag to determine if the user permitted to login or not
-    var autherizedFlag : Bool = false    
+    // Credential json model
     var credentialJsonModel : CheckCredentialsModel!
 
+    // Credential view model
+    let viewModel = CheckCredentials_VM_Model()
+    
+    
     override func viewDidLoad() {
         
         // textFields delegate
@@ -35,14 +40,27 @@ class loginView : UIViewController  , UITextFieldDelegate{
     
     @IBAction func loginTask(_ sender: Any) {
         
+        
+        // Check that the fields is not empty befor make the request
+        if (self.validateCredentials() == true) {
+            // show error message
+            self.showAlert(message: "Please fill you data")
+            return
+        }
+        
+        
+        // show loader
         loaderIndicator.startAnimating()
         
-        let viewModel = CheckCredentials_VM_Model()
+        // Unable user and pass txt and login btn
+        self.EnableOutlets(flag: false)
+        
+        
         
         let user = userNameTxt.text//"usertest"
         let password = passWordTxt.text//"secret"
         
-        viewModel.getRequestStatus(flagSender: "LoginFunction", userName: user!, passWord: password!, completionHandler: {
+        self.viewModel.getRequestStatus(flagSender: "LoginFunction", userName: user!, passWord: password!, completionHandler: {
             
             (resultResponseModel) in
             
@@ -51,26 +69,27 @@ class loginView : UIViewController  , UITextFieldDelegate{
             
             guard self.credentialJsonModel.status == 200 else {
                 
-                let alert = UIAlertView(title: "Authentication", message: "Your credentials is not right , please try afain", delegate: nil, cancelButtonTitle: "OK")
-                alert.alertViewStyle = .default
-                alert.show()
+                self.showAlert(message: "Your credentials is not right , please try again")
                 self.loaderIndicator.stopAnimating()
+                
+                // Unable user and pass txt and login btn
+                self.EnableOutlets(flag: true)
+                
                 
                 return
             }
             
             
-            // navigate to list screen
+            // Unable user and pass txt and login btn
+            self.EnableOutlets(flag: true)
             
-            print("We are navigating you to the next screen...")
+            
+            // navigate to list screen
             self.loaderIndicator.stopAnimating()
             let listOfBooksView:listOfBooksView = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "listOfBooksView") as! listOfBooksView
             
             self.present(listOfBooksView, animated: false, completion: nil)
-            
-            
-            
-            
+          
             
         })
        
@@ -78,7 +97,45 @@ class loginView : UIViewController  , UITextFieldDelegate{
     }
 
     
+    // Enable and unable the outlets to prevent user interaction
+    func EnableOutlets(flag : Bool) {
+        
+        self.userNameTxt.isEnabled = flag
+        self.passWordTxt.isEnabled = flag
+        self.loginButton.isEnabled = flag
+        
+    }
 
+    
+    
+    // Check the fields if it is empty or not
+    func validateCredentials() -> Bool {
+        
+        
+        guard ((self.userNameTxt.text?.isEmpty)! || (self.passWordTxt.text?.isEmpty)!)  else {
+        
+            return false
+        }
+        
+        return true
+    }
+    
+    
+    
+    // Show alert message
+    func showAlert(message : String) {
+        
+        
+        
+        let alert = UIAlertController(title: "Authentication", message: message, preferredStyle: UIAlertControllerStyle.alert)
+        
+        let okAction = UIAlertAction(title: "ok" , style: .default) { (_) in }
+        alert.addAction(okAction)
+        
+        self.present(alert, animated: true, completion: nil)
+
+        
+    }
     
     // delegation function for text fields
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {   //delegate method
@@ -89,7 +146,6 @@ class loginView : UIViewController  , UITextFieldDelegate{
         switch tag {
         case 0:
             passWordTxt.becomeFirstResponder()
-            //self.view.endEditing(true)
             return true
             
         case 1:
@@ -97,9 +153,6 @@ class loginView : UIViewController  , UITextFieldDelegate{
             self.view.endEditing(true)
             self.loginTask(self)
             return true
-            
-            
-            
             
         default:
             return true

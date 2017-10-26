@@ -10,34 +10,36 @@ import Foundation
 import UIKit
 import Alamofire
 
-class listOfBooksView : UIViewController , UITableViewDelegate , UITableViewDataSource {
+class listOfBooksView : UIViewController  {
+    
+    
+    
+    // MARK : Outlets and variables
     
     // outlet to the table view from story board
     @IBOutlet weak var tabelList: UITableView!
     
-    // Refresh control to get new data if exists
-    var refreshControl = UIRefreshControl()
+    // the id of the book which will we use to navigate to the details page
+    var bookID : String!
     
-    var bookID : String!        // the id of the book which will we use to navigate to the details page
+    // Books array
     var booksArray = AllBooksDataModel(assigned: false)
 
     
+    // View Model
+    let viewModel = BookData_VM_Model()
+    
+    // We will use it to enable pagination
+    var lastOffSet = 0
     
     
     override func viewDidLoad() {
-        
-        // UI refresh control (Pull to refresh the grid)
-        refreshControl.addTarget(self, action: #selector(self.fetchData), for: .valueChanged)
-        self.tabelList!.addSubview(refreshControl)
-        self.tabelList!.alwaysBounceVertical = true;
         
         // assign to the view model
         self.booksArray.Books = []
         
         // Check if there is network connection
         if Reachability.isConnectedToNetwork() == true {
-            print("Internet connection OK")
-            self.refreshControl.beginRefreshing()
             // Fetch data from server if the network is connected
             self.fetchData()
             
@@ -46,69 +48,6 @@ class listOfBooksView : UIViewController , UITableViewDelegate , UITableViewData
         
         
     }
-    // number of sections in the table
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
-    
-    // number of elements or rows  in the table are the count of the array of books data
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return  self.booksArray.Books.count
-    }
-    
-    // draw each table cell with data from the array
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        // declare the cell
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "ElementCell")
-        
-        
-        // asign the data to the labels
-        cell.textLabel?.text = self.booksArray.Books[indexPath.row].title
-        cell.detailTextLabel?.text = "$ \(self.booksArray.Books[indexPath.row].price!)"
-        
-        return cell
-        
-    }
-    
-    
-    // when user select a row , id of the row will be used to pass it to the details data page to get its content
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        self.bookID = self.booksArray.Books[indexPath.row].id as String
-        
-        let detailsView : detailsBookView = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "detailsBookView") as! detailsBookView
-        
-        detailsView.bookID = self.bookID
-        self.present(detailsView, animated: false, completion: nil)
-        
-        
-        
-        
-    }
-    
-    
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if (editingStyle == UITableViewCellEditingStyle.delete) {
-            
-            let index = IndexPath(row: indexPath.row , section: 0)
-            tableView.deselectRow(at: index, animated: true)
-            
-            self.booksArray.Books.remove(at: indexPath.row)
-            self.tabelList.deleteRows(at: [index], with: .automatic)
-            tabelList.reloadData()
-            
-        }
-    }
-    
-    
-    
-    
     
     // Refreshing table view to get data
     func do_table_refresh()
@@ -116,7 +55,6 @@ class listOfBooksView : UIViewController , UITableViewDelegate , UITableViewData
         DispatchQueue.main.async(execute: {
             
             self.tabelList.reloadData()
-            self.refreshControl.endRefreshing()
             return
         })
     }
@@ -127,18 +65,15 @@ class listOfBooksView : UIViewController , UITableViewDelegate , UITableViewData
     // fetching the data from server
     func fetchData(){
         
-        
-        
-        let viewModel = BookData_VM_Model()
-        viewModel.getListOfBooks(flagSender: "GetAllBooksData", count: 10, offSet: 0, completionHandler: {
+        self.viewModel.getListOfBooks(flagSender: "GetAllBooksData", count: 20, offset: self.lastOffSet, completionHandler: {
             
             (Response) in
             
-            self.booksArray = Response as AllBooksDataModel
+            self.booksArray.Books.append(contentsOf:  Response.Books)
             self.tabelList.reloadData()
-            self.refreshControl.endRefreshing()
+            self.lastOffSet = self.lastOffSet  + 20
+            print("last offset is \(self.lastOffSet)")
         })
-        
         
 
     }
@@ -305,6 +240,84 @@ class listOfBooksView : UIViewController , UITableViewDelegate , UITableViewData
         
         
         
+    }
+    
+    
+    
+    
+}
+
+
+extension listOfBooksView : UITableViewDelegate , UITableViewDataSource {
+    
+    
+    // number of sections in the table
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    
+    // number of elements or rows  in the table are the count of the array of books data
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return  self.booksArray.Books.count
+    }
+    
+    // draw each table cell with data from the array
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        // declare the cell
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "ElementCell")
+        
+        
+        // asign the data to the labels
+        cell.textLabel?.text = self.booksArray.Books[indexPath.row].title
+        cell.detailTextLabel?.text = "$ \(self.booksArray.Books[indexPath.row].price!)"
+        
+        return cell
+        
+    }
+    
+    
+    // when user select a row , id of the row will be used to pass it to the details data page to get its content
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        self.bookID = self.booksArray.Books[indexPath.row].id as String
+        
+        let detailsView : detailsBookView = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "detailsBookView") as! detailsBookView
+        
+        detailsView.bookID = self.bookID
+        self.present(detailsView, animated: false, completion: nil)
+        
+        
+        
+        
+    }
+    
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if (editingStyle == UITableViewCellEditingStyle.delete) {
+            
+            let index = IndexPath(row: indexPath.row , section: 0)
+            tableView.deselectRow(at: index, animated: true)
+            
+            self.booksArray.Books.remove(at: indexPath.row)
+            self.tabelList.deleteRows(at: [index], with: .automatic)
+            tabelList.reloadData()
+            
+        }
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if self.booksArray.Books.count == indexPath.row + 1 {
+            print("It is the last cell")
+            self.fetchData()
+        }
     }
     
     

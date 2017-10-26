@@ -13,6 +13,7 @@ import Alamofire
 
 class detailsBookView : UIViewController {
     
+     // MARK : Outlets and variables
     
     // outlets to objects in the storyboard
     @IBOutlet weak var titleLabel: UILabel!
@@ -41,7 +42,7 @@ class detailsBookView : UIViewController {
             //assign the data to the labels
             self.titleLabel.text = data.title
             self.priceLabel.text = "$ \(data.price!)"
-            self.authorLabel.text = data.author
+            self.authorLabel.text = "Author: \(data.author)"
             self.contentLabel.text = data.link
             
             

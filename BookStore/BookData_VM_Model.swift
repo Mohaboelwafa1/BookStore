@@ -28,20 +28,18 @@ class BookData_VM_Model : NSObject, BookData_VM_View {
     
     
     // get list of books
-    func getListOfBooks(flagSender:String,count:Int, offSet:Int,completionHandler: @escaping ( _ responseJsonModel:AllBooksDataModel) -> Void) {
+    func getListOfBooks(flagSender:String,count:Int, offset:Int,completionHandler: @escaping ( _ responseJsonModel:AllBooksDataModel) -> Void) {
         
         // access data access layer to get the data from api
-        NetworkManager().getListOfBooksFunction(flagSender: "GetListOfBooks", count: count, offSet: offSet, completionHandler: {
+        NetworkManager().getListOfBooksFunction(flagSender: "GetListOfBooks", count: count, offset: offset, completionHandler: {
         
             
             (ResponseModel) in
             
             
             let arr = ResponseModel as AllBooksDataModel
-            
             self.AllBooksJsonModel = arr
-            
-            completionHandler(ResponseModel)
+            completionHandler(self.AllBooksJsonModel)
             
             
         })

@@ -49,12 +49,12 @@ class NetworkManager: NSObject {
     
     // get list of books
     
-    func getListOfBooksFunction (flagSender:String,count:Int, offSet:Int,completionHandler: @escaping ( _ BooksJsonModel:AllBooksDataModel) -> Void) {
+    func getListOfBooksFunction (flagSender:String,count:Int, offset:Int,completionHandler: @escaping ( _ BooksJsonModel:AllBooksDataModel) -> Void) {
         
         // http request to the server to fetch the data
         
         let parameters: Parameters = ["count": count ,
-                                      "offSet":offSet]
+                                      "offset":offset]
         
         Alamofire.request(BackEndServent.listOfBooks(),parameters: parameters, encoding: URLEncoding.default).responseJSON { response in
             if let JSON = response.result.value {
@@ -62,6 +62,7 @@ class NetworkManager: NSObject {
                 // put the fetched data in the array that we declared
                 let result = JSON as! NSArray
                 
+                print("Deep searchimg \(result)")
                 
                 // loop in the array above to create new one of our type
                 for i in 0...result.count - 1 {
@@ -76,7 +77,6 @@ class NetworkManager: NSObject {
                     self.dataWillPassed.Books.append(newBook)
                 }
                 
-                
                 completionHandler(self.dataWillPassed)
             }
             
@@ -86,7 +86,7 @@ class NetworkManager: NSObject {
     }
     
     
-    // get list of books
+    // get book details
     func getBookDetailsFunction (flagSender:String,bookID:String, completionHandler: @escaping ( _ responseJsonModel:BookDataModel) -> Void) {
         
         

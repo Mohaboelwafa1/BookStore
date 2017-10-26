@@ -18,7 +18,7 @@ protocol BookData_VM_View {
     
     
     // get list of books
-    func getListOfBooks(flagSender:String,count:Int, offSet:Int,completionHandler: @escaping ( _ BooksJsonModel:AllBooksDataModel) -> Void)
+    func getListOfBooks(flagSender:String,count:Int, offset:Int,completionHandler: @escaping ( _ BooksJsonModel:AllBooksDataModel) -> Void)
 
     
     
