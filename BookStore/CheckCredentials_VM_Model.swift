@@ -30,7 +30,6 @@ class CheckCredentials_VM_Model: NSObject , CheckCredentials_VM_View {
             self.credentialsJsonModel.value.status = ResponseModel.status
             self.credentialsJsonModel.value.assigned = true
             
-            print("From Check Model \(self.credentialsJsonModel.value.status)")
             completionHandler(ResponseModel)
             
         })

@@ -19,9 +19,10 @@ class BookData_VM_Model : NSObject, BookData_VM_View {
     override init() {
        
         bookJsonModel     = Dynamic<BookDataModel>(BookDataModel(assigned : false ));
-        //AllBooksJsonModel = AllBooksDataModel(AllBooksDataModel(assigned : false ));
+        
         AllBooksJsonModel  = AllBooksDataModel(assigned: false)
         AllBooksJsonModel.Books = []
+        
         super.init()
     }
     

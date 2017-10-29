@@ -30,15 +30,21 @@ class NetworkManager: NSObject {
         
         Alamofire.request(BackEndServent.authenticate_Login())
             .authenticate(user: userName, password: passWord)
-            .responseJSON { response in
+            .responseString { response in
                 
-                print("Response Code------\(response.response?.statusCode)")
+                print("XML response is \(response.value!)")
+                
+                print("Response String: \(response.result.value!)")
                 
                 let result = CheckCredentialsModel(assigned: false)
                 result.assigned = true
                 result.status = response.response?.statusCode
                 
                 completionHandler(result)
+        }
+        
+            .responseJSON { response in
+                print("Response JSON: \(response.result.value)")
         }
         
     }

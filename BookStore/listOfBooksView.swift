@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import Alamofire
+import CoreData
 
 class listOfBooksView : UIViewController  {
     
@@ -24,7 +25,7 @@ class listOfBooksView : UIViewController  {
     
     // Books array
     var booksArray = AllBooksDataModel(assigned: false)
-
+    
     
     // View Model
     let viewModel = BookData_VM_Model()
@@ -38,6 +39,9 @@ class listOfBooksView : UIViewController  {
         // assign to the view model
         self.booksArray.Books = []
         
+        // get book saved in DB if exist
+        self.getBooks()
+        
         // Check if there is network connection
         if Reachability.isConnectedToNetwork() == true {
             // Fetch data from server if the network is connected
@@ -48,6 +52,46 @@ class listOfBooksView : UIViewController  {
         
         
     }
+    
+    
+    // Get data from DB If there are ?
+    func getBooks () {
+        
+        
+        //create a fetch request, telling it about the entity
+        let fetchRequest: NSFetchRequest<NewBook> = NewBook.fetchRequest()
+        
+        do {
+            //go get the results
+            let searchResults = try (UIApplication.shared.delegate as! AppDelegate).getContext().fetch(fetchRequest)
+            
+            //I like to check the size of the returned results!
+            print ("num of results = \(searchResults.count)")
+            
+            //You need to convert to NSManagedObject to use 'for' loops
+            for book in searchResults as [NSManagedObject] {
+                //get the Key Value pairs (although there may be a better way to do that...
+                print("book title \(book.value(forKey: "title"))")
+                
+                let newBook : BookDataModel = BookDataModel(assigned: false)
+                newBook.id = book.value(forKey: "id") as! String!
+                newBook.title = book.value(forKey: "title") as! String!
+                newBook.price = book.value(forKey: "price") as! Int!
+                newBook.author = book.value(forKey: "author") as! String!
+                newBook.image = book.value(forKey: "image") as! String!
+                newBook.link = book.value(forKey: "link") as! String!
+                
+                // this will be added at the end of the list
+                self.booksArray.Books.append(newBook)
+                
+            }
+        } catch {
+            print("Error with request: \(error)")
+        }
+    }
+    
+    
+    
     
     // Refreshing table view to get data
     func do_table_refresh()
@@ -61,7 +105,7 @@ class listOfBooksView : UIViewController  {
     
     
     
-
+    
     // fetching the data from server
     func fetchData(){
         
@@ -75,7 +119,7 @@ class listOfBooksView : UIViewController  {
             print("last offset is \(self.lastOffSet)")
         })
         
-
+        
     }
     
     
@@ -163,8 +207,14 @@ class listOfBooksView : UIViewController  {
             
             guard newBook.id.isEmpty , newBook.title.isEmpty , newBook.price == 0  else {
                 
-                // this will be added at the end of the list
-                self.booksArray.Books.append(newBook)
+                
+                // Add new book to DB
+                (UIApplication.shared.delegate as! AppDelegate).storeBook(BookID: newBook.id , BookTitle: newBook.title, BookPrice: newBook.price, BookAuthor: newBook.author ?? " ", BookImage: newBook.image ?? " ", BookLink: newBook.link ?? " ")
+                
+                
+                // this will be added at the start of the lis
+                self.booksArray.Books.insert(newBook, at: 0)
+                
                 self.tabelList.reloadData()
                 return
                 
@@ -245,6 +295,9 @@ class listOfBooksView : UIViewController  {
     
     
     
+    
+    
+    
 }
 
 
@@ -266,12 +319,20 @@ extension listOfBooksView : UITableViewDelegate , UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         // declare the cell
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "ElementCell")
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CustomCell", for: indexPath)
         
+        
+        let bookTitleLbl  = cell.viewWithTag(1) as! UILabel
+        let bookPriceLbl  = cell.viewWithTag(2) as! UILabel
+        
+        let containerView = cell.viewWithTag(3)! as UIView
+        containerView.layer.cornerRadius = 5
         
         // asign the data to the labels
-        cell.textLabel?.text = self.booksArray.Books[indexPath.row].title
-        cell.detailTextLabel?.text = "$ \(self.booksArray.Books[indexPath.row].price!)"
+        bookTitleLbl.text = self.booksArray.Books[indexPath.row].title
+        bookPriceLbl.text = "$ \(self.booksArray.Books[indexPath.row].price!)"
+        
+        
         
         return cell
         
@@ -304,9 +365,36 @@ extension listOfBooksView : UITableViewDelegate , UITableViewDataSource {
             let index = IndexPath(row: indexPath.row , section: 0)
             tableView.deselectRow(at: index, animated: true)
             
+            
+            // Delete from DB
+            let fetchRequest: NSFetchRequest<NewBook> = NewBook.fetchRequest()
+            
+            do {
+                //go get the results
+                let searchResults = try (UIApplication.shared.delegate as! AppDelegate).getContext().fetch(fetchRequest)
+                
+                
+                for book in searchResults as [NSManagedObject] {
+                    
+                    let bookTitle = self.booksArray.Books[indexPath.row].title
+                    
+                    if (bookTitle  == (book.value(forKey: "title")as! String)) {
+                        
+                        (UIApplication.shared.delegate as! AppDelegate).getContext().delete(book as NSManagedObject)
+                        }
+                    
+                    
+                }
+            } catch {
+                print("Error with request: \(error)")
+            }
+            
+            
             self.booksArray.Books.remove(at: indexPath.row)
             self.tabelList.deleteRows(at: [index], with: .automatic)
-            tabelList.reloadData()
+            
+            
+            
             
         }
     }

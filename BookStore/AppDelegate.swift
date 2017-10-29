@@ -5,8 +5,8 @@
 //  Created by mohamed hassan on 3/31/17.
 //  Copyright © 2017 mohamed hassan. All rights reserved.
 //
-
 import UIKit
+import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -42,5 +42,133 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 
+    
+    // MARK: - Core Data stack
+    
+    // Get context
+    func getContext () -> NSManagedObjectContext {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        return appDelegate.persistentContainer.viewContext
+    }
+    
+    
+    // Store a new book
+    func storeBook (BookID: String, BookTitle: String, BookPrice: Int, BookAuthor: String, BookImage: String, BookLink: String) {
+        let context = getContext()
+        
+        //retrieve the entity that we just created
+        let entity =  NSEntityDescription.entity(forEntityName: "NewBook", in: context)
+        
+        let book = NSManagedObject(entity: entity!, insertInto: context)
+        
+        //set the entity values
+        book.setValue(BookID, forKey: "id")
+        book.setValue(BookTitle, forKey: "title")
+        book.setValue(BookPrice, forKey: "price")
+        book.setValue(BookAuthor, forKey: "author")
+        book.setValue(BookImage, forKey: "image")
+        book.setValue(BookLink, forKey: "link")
+        
+        //save the object
+        do {
+            try context.save()
+            print("saved!")
+        } catch let error as NSError  {
+            print("Could not save \(error), \(error.userInfo)")
+        } catch {
+            
+        }
+    }
+    
+    
+    // Get data
+    func getBooks () {
+        //create a fetch request, telling it about the entity
+        let fetchRequest: NSFetchRequest<NewBook> = NewBook.fetchRequest()
+        
+        do {
+            //go get the results
+            let searchResults = try getContext().fetch(fetchRequest)
+            
+            //I like to check the size of the returned results!
+            print ("num of results = \(searchResults.count)")
+            
+            //You need to convert to NSManagedObject to use 'for' loops
+            for book in searchResults as [NSManagedObject] {
+                //get the Key Value pairs (although there may be a better way to do that...
+                print("book title \(book.value(forKey: "title"))")
+            }
+        } catch {
+            print("Error with request: \(error)")
+        }
+    }
+    
+    
+    
+    
+    //Delete values from User Info table
+//    func deleteUserInfoData() {
+//        let context = getContext()
+//        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "NewBook")
+//        fetchRequest.includesPropertyValues = false // Only fetch the managedObjectID (not the full object structure)
+//        if let fetchResults = context.executeFetchRequest(fetchRequest, error: nil) as? [NewBook] {
+//            for result in fetchResults {
+//                managedContext.deleteObject(result)
+//            }
+//        }
+//        var err: NSError?
+//        if !context.save(&err) {
+//            print("User Info deleteData - Error : \(err!.localizedDescription)")
+//            abort()
+//        } else {
+//            print("User Info deleteData - Success")
+//        }
+//    }
+//    
+//    
+    
+    
+    @available(iOS 10.0, *)
+    lazy var persistentContainer: NSPersistentContainer = {
+        /*
+         The persistent container for the application. This implementation
+         creates and returns a container, having loaded the store for the
+         application to it. This property is optional since there are legitimate
+         error conditions that could cause the creation of the store to fail.
+         */
+        let container = NSPersistentContainer(name: "NewBookDBModel")
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+        return container
+    }()
+    
+    // MARK: - Core Data Saving support
+    
+    func saveContext () {
+        if #available(iOS 10.0, *) {
+            let context = persistentContainer.viewContext
+            
+            if context.hasChanges {
+                do {
+                    try context.save()
+                } catch {
+                    
+                    let nserror = error as NSError
+                    fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+                }
+            }
+            
+        } else {
+            // Fallback on earlier versions
+        }
+        
+    }
+    
+    
+    
 }
 

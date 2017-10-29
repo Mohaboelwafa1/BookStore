@@ -13,8 +13,6 @@ protocol BookData_VM_View {
     
     var bookJsonModel  : Dynamic<BookDataModel> { get }
     var AllBooksJsonModel  :  AllBooksDataModel { get }
-    //var AllBooksJsonModel  :  Dynamic<[BookDataModel]> { get }
-    
     
     
     // get list of books

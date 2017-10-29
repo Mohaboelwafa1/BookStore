@@ -66,6 +66,7 @@ class loginView : UIViewController  , UITextFieldDelegate{
             
             self.credentialJsonModel = resultResponseModel
             
+           
             
             guard self.credentialJsonModel.status == 200 else {
                 
