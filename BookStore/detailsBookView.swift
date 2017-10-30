@@ -46,10 +46,10 @@ class detailsBookView : UIViewController {
             
             
             //assign the data to the labels
-            self.titleLabel.text = data.title
+            self.titleLabel.text = data.title!
             self.priceLabel.text = "$ \(data.price!)"
-            self.authorLabel.text = "Author: \(data.author)"
-            self.contentLabel.text = data.link
+            self.authorLabel.text = "Author: \(data.author!)"
+            self.contentLabel.text = data.link!
             
             
             

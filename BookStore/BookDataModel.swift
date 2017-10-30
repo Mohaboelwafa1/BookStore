@@ -45,7 +45,6 @@ class BookDataModel: NSObject , Mappable {
     func NotNullCheck(tempObject : Map )-> String{
         
         if tempObject.value() != nil {
-            print( " ------ ")
             
             return ""
         }

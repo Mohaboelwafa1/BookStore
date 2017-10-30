@@ -13,12 +13,12 @@ class BackEndServent {
     // MARK: - Domain
     
     // domain
-    static var domainUrl  = "http://assignment.gae.golgek.mobi/api/v1/"
+    static var domainUrl  = "http://assignment.gae.golgek.mobi"
 
 
     
     // MARK: - authentication
-    static var accountApi = "secure/"
+    static var accountApi = "/api/v1/secure/"
     class func authenticate_Login()->String
     {
         let serviceName = "checkCredentials"
@@ -31,7 +31,7 @@ class BackEndServent {
    
     
     // MARK: - get list of books
-    static var itemsApi = "items/"
+    static var itemsApi = "\(SingletoneClass.sharedInstance.itemsAPI)/"
     class func listOfBooks()->String
     {
         let serviceName = "listOfIBooks"

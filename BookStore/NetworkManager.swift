@@ -8,12 +8,14 @@
 
 import Foundation
 import Alamofire
+import SwiftSoup
+
 
 class NetworkManager: NSObject {
     
     var dataWillPassed :AllBooksDataModel!
     
-    // MARK: - ini  tializer
+    // MARK: - initializer
     override init() {
         super.init()
         
@@ -32,20 +34,37 @@ class NetworkManager: NSObject {
             .authenticate(user: userName, password: passWord)
             .responseString { response in
                 
-                print("XML response is \(response.value!)")
-                
-                print("Response String: \(response.result.value!)")
-                
+                // get status code
                 let result = CheckCredentialsModel(assigned: false)
                 result.assigned = true
                 result.status = response.response?.statusCode
                 
+                if(result.status == 200){
+                    
+                    // get Items API
+                    do{
+                        let html: String = response.result.value!
+                        let doc: Document = try! SwiftSoup.parse(html)
+                        let link: Element = try! doc.select("a").first()!
+                        
+                        let linkText: String = try! link.text();
+                        SingletoneClass.sharedInstance.itemsAPI = linkText
+                        
+                        
+                    }catch Exception.Error(let _, let message){
+                        print(message)
+                    }catch{
+                        print("error")
+                    }
+                
+                    
+                    
+                }
+                
                 completionHandler(result)
         }
         
-            .responseJSON { response in
-                print("Response JSON: \(response.result.value)")
-        }
+        
         
     }
     
@@ -67,10 +86,10 @@ class NetworkManager: NSObject {
                 
                 // put the fetched data in the array that we declared
                 let result = JSON as! NSArray
-                
-                print("Deep searchimg \(result)")
-                
-                // loop in the array above to create new one of our type
+                if (result.count < 1){
+                //completionHandler(self.dataWillPassed)
+                return
+                }
                 for i in 0...result.count - 1 {
                     let newBook : BookDataModel = BookDataModel(assigned: false)
                     
@@ -104,11 +123,11 @@ class NetworkManager: NSObject {
                 let dataDic = JSON as! NSDictionary
                 let data = BookDataModel(assigned: false)
                 //assign the data to the labels
-                data.title = dataDic["title"] as? String
-                data.price = dataDic["price"] as? Int
+                data.title  = dataDic["title"] as? String
+                data.price  = dataDic["price"] as? Int
                 data.author = dataDic["author"] as? String
-                data.link = dataDic["link"] as? String
-                data.image = (dataDic["image"] as? String)!
+                data.link   = dataDic["link"] as? String
+                data.image  = (dataDic["image"] as? String)!
 
                 completionHandler(data)
                 

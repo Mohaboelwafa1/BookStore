@@ -17,7 +17,7 @@ class CheckCredentialsModel: NSObject , Mappable {
     var assigned : Bool!
     
     init(assigned : Bool) {
-        //self.assigned = assigned
+       
     }
     
     
@@ -32,7 +32,6 @@ class CheckCredentialsModel: NSObject , Mappable {
     func NotNullCheck(tempObject : Map )-> String{
         
         if tempObject.value() != nil {
-            print( " ------ ")
             
             return ""
         }

@@ -64,14 +64,11 @@ class listOfBooksView : UIViewController  {
         do {
             //go get the results
             let searchResults = try (UIApplication.shared.delegate as! AppDelegate).getContext().fetch(fetchRequest)
+           
             
-            //I like to check the size of the returned results!
-            print ("num of results = \(searchResults.count)")
             
-            //You need to convert to NSManagedObject to use 'for' loops
             for book in searchResults as [NSManagedObject] {
-                //get the Key Value pairs (although there may be a better way to do that...
-                print("book title \(book.value(forKey: "title"))")
+                
                 
                 let newBook : BookDataModel = BookDataModel(assigned: false)
                 newBook.id = book.value(forKey: "id") as! String!
@@ -81,8 +78,8 @@ class listOfBooksView : UIViewController  {
                 newBook.image = book.value(forKey: "image") as! String!
                 newBook.link = book.value(forKey: "link") as! String!
                 
-                // this will be added at the end of the list
-                self.booksArray.Books.append(newBook)
+                // this will be added at the start of the list
+                self.booksArray.Books.insert(newBook, at: 0)
                 
             }
         } catch {
@@ -116,7 +113,7 @@ class listOfBooksView : UIViewController  {
             self.booksArray.Books.append(contentsOf:  Response.Books)
             self.tabelList.reloadData()
             self.lastOffSet = self.lastOffSet  + 20
-            print("last offset is \(self.lastOffSet)")
+            
         })
         
         
@@ -212,7 +209,7 @@ class listOfBooksView : UIViewController  {
                 (UIApplication.shared.delegate as! AppDelegate).storeBook(BookID: newBook.id , BookTitle: newBook.title, BookPrice: newBook.price, BookAuthor: newBook.author ?? " ", BookImage: newBook.image ?? " ", BookLink: newBook.link ?? " ")
                 
                 
-                // this will be added at the start of the lis
+                // this will be added at the start of the list
                 self.booksArray.Books.insert(newBook, at: 0)
                 
                 self.tabelList.reloadData()
@@ -381,6 +378,17 @@ extension listOfBooksView : UITableViewDelegate , UITableViewDataSource {
                     if (bookTitle  == (book.value(forKey: "title")as! String)) {
                         
                         (UIApplication.shared.delegate as! AppDelegate).getContext().delete(book as NSManagedObject)
+                        
+                        
+                        //save the DB
+                        do {
+                            try (UIApplication.shared.delegate as! AppDelegate).getContext().save()
+                            print("saved!")
+                        } catch let error as NSError  {
+                            print("Could not save \(error), \(error.userInfo)")
+                        } catch {
+                            
+                        }
                         }
                     
                     
